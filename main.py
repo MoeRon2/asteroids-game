@@ -1,6 +1,10 @@
+import sys
 from constants import SCREEN_HEIGHT, SCREEN_WIDTH
 import pygame
 from player import Player
+from asteroid import Asteroid
+from asteroidfield import AsteroidField
+from shot import Shot
 
 def main():
     print("Starting Asteroids!")
@@ -17,12 +21,18 @@ def main():
     # Create groups
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
+    asteroids = pygame.sprite.Group()
+    shots = pygame.sprite.Group()
 
     # Assign groups
     Player.containers = (updatable, drawable)
+    Asteroid.containers = (asteroids, updatable, drawable)
+    AsteroidField.containers = (updatable) 
+    Shot.containers = (updatable, drawable, shots)
 
-
+    
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    asteroid_field = AsteroidField() 
 
     # Game loop
     while True:
@@ -36,9 +46,20 @@ def main():
 
         updatable.update(dt)
         
+        # drawable.draw(screen) for this player needs to have an attribute of image
+         
         for drawable_element in drawable:
             drawable_element.draw(screen)
         
+        # Asteroid check for collision
+        for asteroid in asteroids:
+            if player.check_collision(asteroid):
+                sys.exit("Game over!")
+            for shot in shots:
+                if shot.check_collision(asteroid):
+                    asteroid.split()
+
+
         # player.update(dt) refactored
         # player.draw(screen)
         
